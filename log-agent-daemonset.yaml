@@ -1,0 +1,39 @@
+# log-agent-daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-agent
+  labels:
+    app: log-agent
+spec:
+  selector:
+    matchLabels:
+      app: log-agent
+  template:
+    metadata:
+      labels:
+        app: log-agent
+    spec:
+      containers:
+      - name: log-collector
+        image: busybox:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          while true; do
+            echo "$(date) - Getting logs from application..."
+            curl -s http://custom-app-service/logs > /tmp/app-logs.txt
+            if [ -s /tmp/app-logs.txt ]; then
+              cat /tmp/app-logs.txt
+            else
+              echo "No logs found"
+            fi
+            sleep 60
+          done
+        volumeMounts:
+        - name: agent-logs
+          mountPath: /var/log/agent
+      volumes:
+      - name: agent-logs
+        emptyDir: {}
+        

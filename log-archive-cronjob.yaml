@@ -1,0 +1,29 @@
+# log-archive-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: log-archiver
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: log-archiver
+            image: curlimages/curl:latest
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              timestamp=$(date +%Y%m%d-%H%M%S)
+              mkdir -p /tmp/logs
+              curl -s http://custom-app-service/logs > /tmp/logs/app.log
+              tar -czf /tmp/app-logs-${timestamp}.tar.gz -C /tmp logs
+              echo "Logs archived to /tmp/app-logs-${timestamp}.tar.gz"
+            volumeMounts:
+            - name: archive-volume
+              mountPath: /tmp
+          volumes:
+          - name: archive-volume
+            emptyDir: {}
+          restartPolicy: OnFailure

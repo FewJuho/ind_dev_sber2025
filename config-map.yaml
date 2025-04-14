@@ -1,0 +1,10 @@
+# config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  LOG_LEVEL: "DEBUG"
+  PORT: "5000"
+  WELCOME_MESSAGE: "Welcome to the custom app"
+  
