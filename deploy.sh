@@ -7,6 +7,18 @@ fi
 
 kubectl label namespace default istio-injection=enabled --overwrite
 
+if ! helm ls -n monitoring | grep kube-prometheus-stack &>/dev/null; then
+  kubectl create namespace monitoring || true
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm repo update
+  helm install monitoring prometheus-community/kube-prometheus-stack \
+    --namespace monitoring \
+    -f prometheus/values.yaml
+fi
+
+kubectl apply -f prometheus/servicemonitor-app.yaml
+kubectl apply -f prometheus/servicemonitor-istio.yaml
+
 docker build -t custom-app:latest .
 
 kubectl apply -f config-map.yaml

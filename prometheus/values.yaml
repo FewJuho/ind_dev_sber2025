@@ -1,0 +1,19 @@
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels:
+        release: monitoring
+    podMonitorSelector:
+      matchLabels:
+        release: monitoring
+    serviceMonitorNamespaceSelector: {}
+    podMonitorNamespaceSelector: {}
+    additionalScrapeConfigs: []
+kube-state-metrics:
+  enabled: true
+nodeExporter:
+  enabled: true
+alertmanager:
+  enabled: false
+grafana:
+  enabled: false
