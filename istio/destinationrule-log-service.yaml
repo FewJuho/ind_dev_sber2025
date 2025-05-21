@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: dr-log-service
+  namespace: istio-system
+spec:
+  host: log-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 3
+      http:
+        http1MaxPendingRequests: 5
+    tls:
+      mode: ISTIO_MUTUAL
