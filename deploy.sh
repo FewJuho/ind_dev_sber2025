@@ -1,6 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
+
+if ! kubectl get namespace istio-system &>/dev/null; then
+  istioctl install --set profile=default -y
+fi
+
+kubectl label namespace default istio-injection=enabled --overwrite
 
 docker build -t custom-app:latest .
+
 kubectl apply -f config-map.yaml
 kubectl apply -f test-pod.yaml
 kubectl wait --for=condition=Ready pod/app-test-pod --timeout=60s
@@ -28,3 +36,8 @@ curl http://localhost:8080/status
 curl -X POST -H "Content-Type: application/json" -d '{"message":"Service test"}' http://localhost:8080/log
 curl http://localhost:8080/logs
 kill $PF_PID
+
+kubectl apply -f istio/gateway.yaml
+kubectl apply -f istio/virtualservice.yaml
+kubectl apply -f istio/destinationrule-app-service.yaml
+kubectl apply -f istio/destinationrule-log-service.yaml
